@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
@@ -39,12 +41,16 @@ public class HibernateSqlParser {
 	        } while (s != null && !s.isEmpty());
 		}
 		
-		String result = process(sql.toString(), binds);
+		List<String> logMessages = new ArrayList<>();
+		String result = process(sql.toString(), binds, logMessages);
+		
+		logMessages.forEach(System.out::println);
+		System.out.println();
 		
 		System.out.println(result);
 	}
 
-	static String process(String sql, Map<Integer, Param> binds)  {
+	static String process(String sql, Map<Integer, Param> binds, List<String> logMessages)  {
 		StringBuilder result = new StringBuilder(sql);
 		Param param = null;
 		int i = 1, idx = 0;
@@ -57,7 +63,9 @@ public class HibernateSqlParser {
 			}
 			
 			String replacement = "/*?" + i + "*/" + param.getQuerySql();
-			System.out.printf("replacing bind %d with %s.\n", i, replacement);
+			if (logMessages != null) {
+				logMessages.add(String.format("replacing bind %d with %s.\n", i, replacement));
+			}
 			result.replace(idx, idx+1, replacement);
 			idx += replacement.length();
 			i++;
