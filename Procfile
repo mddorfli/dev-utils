@@ -1,1 +1,1 @@
-web:    java $JAVA_OPTS -cp target/classes:target/dependency/* com.example.Main
+web:    java -cp target/dev-utils-1.0-jar-with-dependencies.jar com.omb.devutils.Main
