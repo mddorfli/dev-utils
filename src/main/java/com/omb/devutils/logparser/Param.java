@@ -34,6 +34,7 @@ class Param {
 				result = '\''+value+'\'';
 				break;
 			case BIGINT:
+			case INTEGER:
 				result = value;
 				break;
 			default:

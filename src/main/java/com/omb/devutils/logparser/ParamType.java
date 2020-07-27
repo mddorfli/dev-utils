@@ -4,5 +4,6 @@ enum ParamType {
 	VARCHAR,
 	BOOLEAN,
 	TIMESTAMP,
-	BIGINT,
+	BIGINT, 
+	INTEGER,
 }
