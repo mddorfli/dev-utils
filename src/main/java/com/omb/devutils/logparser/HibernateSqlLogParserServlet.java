@@ -47,8 +47,9 @@ public class HibernateSqlLogParserServlet extends HttpServlet {
 			}
 			out.println("</div>");
 			out.print("<hr/>");
-			out.println("<div style='font-family: monospace; white-space: pre-wrap; width: 120em; word-wrap: break-word;'>"
-					+ StringEscapeUtils.escapeHtml4(result) + "</div>");
+			out.println(
+					"<div style='font-family: monospace; white-space: pre-wrap; width: 120em; word-wrap: break-word;'>"
+							+ StringEscapeUtils.escapeHtml4(result) + "</div>");
 		}
 
 		out.println("</body></html>");
@@ -58,6 +59,7 @@ public class HibernateSqlLogParserServlet extends HttpServlet {
 	}
 
 	private String process(String logs, List<String> logMessages) {
+		ISqlLogParser<Integer> parser = new HibernateSqlParser();
 		Map<Integer, Param> binds = new HashMap<>();
 		StringBuilder sql = new StringBuilder();
 		for (String line : logs.split("\n")) {
@@ -68,13 +70,13 @@ public class HibernateSqlLogParserServlet extends HttpServlet {
 				continue;
 			}
 
-			Pair<Integer, Param> kv = HibernateSqlParser.matchLogLine(line);
+			Pair<Integer, Param> kv = parser.matchLogLine(line);
 			if (kv != null) {
 				binds.put(kv.getKey(), kv.getValue());
 			}
 		}
 
-		return HibernateSqlParser.process(sql.toString(), binds, logMessages);
+		return parser.process(sql.toString(), binds, logMessages);
 	}
 
 }

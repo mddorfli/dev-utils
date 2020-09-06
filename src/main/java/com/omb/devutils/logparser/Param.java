@@ -13,8 +13,8 @@ class Param {
 	// 1970-01-01 00:00
 	private static final DateFormat PSQL_DATEFORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
-	ParamType type;
-	String value;
+	private ParamType type;
+	private String value;
 
 	public Param(ParamType type, String value) {
 		super();
@@ -44,6 +44,14 @@ class Param {
 			break;
 		}
 		return result;
+	}
+
+	public ParamType getType() {
+		return type;
+	}
+
+	public String getValue() {
+		return value;
 	}
 
 	@Override
