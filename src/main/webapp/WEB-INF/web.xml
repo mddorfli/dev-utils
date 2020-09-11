@@ -10,13 +10,13 @@
     </welcome-file-list>
     
   <servlet>
-    <servlet-name>hibernateSqlLogParser</servlet-name>
-    <servlet-class>com.omb.devutils.logparser.HibernateSqlLogParserServlet</servlet-class>
+    <servlet-name>sqlLogParser</servlet-name>
+    <servlet-class>com.omb.devutils.logparser.SqlLogParserServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>
-    <servlet-name>hibernateSqlLogParser</servlet-name>
-    <url-pattern>/hibernateSqlLogParser</url-pattern>
+    <servlet-name>sqlLogParser</servlet-name>
+    <url-pattern>/sqlLogParser</url-pattern>
   </servlet-mapping>
-
+  
 </web-app>

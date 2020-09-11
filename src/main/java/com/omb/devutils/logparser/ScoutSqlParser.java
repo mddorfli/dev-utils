@@ -4,18 +4,17 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-public class ScoutSqlParser implements ISqlLogParser<String> {
+public class ScoutSqlParser extends AbstractSqlLogParser<String> {
 	// IN :preferredLanguageUid => ? [BIGINT 11001]
-	static Pattern REGEX = Pattern.compile("^IN (?<bind>:\\w+) => \\? \\[(?<type>\\w+) (?<value>\\d+)\\]$");
+	static Pattern REGEX = Pattern.compile("^IN  (?<bind>:\\w+) => \\? \\[(?<type>\\w+) (?<value>-?\\w+)\\]$");
 
 	@Override
 	public Pair<String, Param> matchLogLine(String line) {
@@ -32,13 +31,16 @@ public class ScoutSqlParser implements ISqlLogParser<String> {
 	}
 
 	@Override
-	public String process(String sql, Map<String, Param> binds, List<String> logMessages) {
+	public String process(String sql, List<String> logMessages) {
 		StringBuilder result = new StringBuilder(sql);
 		for (Entry<String, Param> entry : binds.entrySet()) {
 			String bind = entry.getKey();
 			Param value = entry.getValue();
 			for (int i = 0; (i = result.indexOf(bind, i)) != -1;) {
 				String replacement = "/*" + bind + "*/" + value.getQuerySql();
+				if (logMessages != null) {
+					logMessages.add(String.format("replacing bind %s with %s.\n", bind, replacement));
+				}
 				result.replace(i, i + bind.length(), replacement);
 				i += replacement.length();
 			}
@@ -46,33 +48,28 @@ public class ScoutSqlParser implements ISqlLogParser<String> {
 		return result.toString();
 	}
 
+	@Override
+	protected boolean isValidSQL(String line) {
+		return !"*** UNPARSED ***".equals(StringUtils.trim(line));
+	}
+
 	public static void main(String[] args) throws IOException {
 		ScoutSqlParser me = new ScoutSqlParser();
-		StringBuilder sql = new StringBuilder();
-		Map<String, Param> binds = new HashMap<>();
+		ArrayList<String> lines = new ArrayList<>();
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
 			System.out.println("Paste SQL:");
-			String s;
-			do {
-				s = br.readLine();
-				if ("*** UNPARSED ***".equals(s)) {
-					sql.deleteCharAt(sql.length() - 1);
-					continue;
-				}
-
-				Pair<String, Param> kv = me.matchLogLine(s);
-				if (kv != null) {
-					binds.put(kv.getKey(), kv.getValue());
-				} else if (binds.isEmpty()) {
-					sql.append(s).append('\n');
-				}
-			} while (s != null && !s.isEmpty());
+			String line;
+			while ((line = br.readLine()) != null && !line.isEmpty()) {
+				lines.add(line);
+			}
 		}
+
+		String sql = me.parseParameterBindings(lines);
+
 		List<String> logMessages = new ArrayList<>();
-		String result = me.process(sql.toString(), binds, logMessages);
+		String result = me.process(sql, logMessages);
 		logMessages.forEach(System.out::println);
 		System.out.println();
 		System.out.println(result);
 	}
-
 }

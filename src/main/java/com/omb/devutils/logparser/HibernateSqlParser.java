@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-public class HibernateSqlParser implements ISqlLogParser<Integer> {
+public class HibernateSqlParser extends AbstractSqlLogParser<Integer> {
 
 	// binding parameter [1] as [VARCHAR] - [READ]
 	private static Pattern REGEX = Pattern
@@ -32,17 +32,13 @@ public class HibernateSqlParser implements ISqlLogParser<Integer> {
 					continue;
 				}
 
-				Pair<Integer, Param> kv = me.matchLogLine(s);
-				if (kv != null) {
-					binds.put(kv.getKey(), kv.getValue());
-					continue;
-				}
+				me.parseLine(s);
 
 			} while (s != null && !s.isEmpty());
 		}
 
 		List<String> logMessages = new ArrayList<>();
-		String result = me.process(sql.toString(), binds, logMessages);
+		String result = me.process(sql.toString(), logMessages);
 
 		logMessages.forEach(System.out::println);
 		System.out.println();
@@ -64,7 +60,7 @@ public class HibernateSqlParser implements ISqlLogParser<Integer> {
 	}
 
 	@Override
-	public String process(String sql, Map<Integer, Param> binds, List<String> logMessages) {
+	public String process(String sql, List<String> logMessages) {
 		StringBuilder result = new StringBuilder(sql);
 		Param param = null;
 		int i = 1, idx = 0;

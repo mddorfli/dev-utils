@@ -1,9 +1,41 @@
+<!DOCTYPE html>
 <html>
 <body>
-<form action="hibernateSqlLogParser" method="post">
+<form action="sqlLogParser" method="post">
 <div>Paste SQL logs:</div>
 <div><textarea name="logs" cols="160" rows="40"></textarea></div>
+<div>
+	Log type: 
+	<input id="logType_hibernate" type="radio" name="logType" value="hibernate"> <label for="logType_hibernate">Hibernate</label>
+	<input id="logType_scout" type="radio" name="logType" value="scout"> <label for="logType_scout">Eclipse Scout</label>
+</div>
 <div><input type="submit" value="Parse Logs"/></div>
 </form>
+
+<script>
+	function getCookie(cname) {
+		var name = cname + "=";
+		var decodedCookie = decodeURIComponent(document.cookie);
+		var ca = decodedCookie.split(';');
+		for (var i = 0; i < ca.length; i++) {
+			var c = ca[i];
+			while (c.charAt(0) == ' ') {
+				c = c.substring(1);
+			}
+			if (c.indexOf(name) == 0) {
+				return c.substring(name.length, c.length);
+			}
+		}
+		return "";
+	};
+
+	
+	var lastLogType = getCookie("lastLogType");
+	if (!lastLogType) {
+		lastLogType = "hibernate";
+	}
+	var logType = document.getElementById("logType_"+lastLogType);
+	logType.checked = true;
+</script>
 </body>
 </html>
