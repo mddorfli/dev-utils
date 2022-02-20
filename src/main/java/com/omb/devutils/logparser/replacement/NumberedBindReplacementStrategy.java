@@ -17,22 +17,23 @@ public class NumberedBindReplacementStrategy implements BindReplacementStrategy<
     public String process(String sql, List<String> logMessages, Map<Integer, Param> binds) {
         StringBuilder result = new StringBuilder(sql);
         Param param = null;
-        int i = 1, idx = 0;
+        int bindNr = 1, idx = 0;
         while (true) {
-            param = binds.get(i);
+            param = binds.get(bindNr);
             idx = result.indexOf(String.valueOf(bindChar), idx + 1);
 
             if (param == null || idx == -1) {
                 break;
             }
 
-            String replacement = "/*" + bindChar + i + "*/" + param.getQuerySql();
+            String replacement = "/*" + bindChar + bindNr + "*/" + param.getQuerySql();
             if (logMessages != null) {
-                logMessages.add(String.format("replacing bind %d with %s.\n", i, replacement));
+                logMessages.add(String.format("replacing bind %d with %s.\n", bindNr, replacement));
             }
-            result.replace(idx, idx + 1, replacement);
+            int bindCharCount = (int) Math.log10(bindNr) + 2;
+            result.replace(idx, idx + bindCharCount, replacement);
             idx += replacement.length();
-            i++;
+            bindNr++;
         }
         return result.toString();
     }
