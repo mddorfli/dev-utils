@@ -36,6 +36,8 @@ public class SqlLogParserServlet extends HttpServlet {
 		AbstractSqlLogParser<?> parser = null;
 		if ("scout".equals(logType)) {
 			parser = new ScoutSqlParser();
+		} else if ("postgres".equals(logType)) {
+			parser = new PostgresSqlParser();
 		} else if ("hibernate".equals(logType)) {
 			parser = new HibernateSqlParser();
 		}

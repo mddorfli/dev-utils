@@ -1,13 +1,21 @@
 package com.omb.devutils.logparser;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.*;
 
+import com.omb.devutils.logparser.replacement.BindReplacementStrategy;
 import org.apache.commons.lang3.tuple.Pair;
 
 public abstract class AbstractSqlLogParser<KEY> {
+
+	private BindReplacementStrategy<KEY> replacementStrategy;
+
+	protected AbstractSqlLogParser(BindReplacementStrategy<KEY> replacementStrategy) {
+		this.replacementStrategy = replacementStrategy;
+	}
+
 	protected enum LineType {
 		SQL, BIND, INVALID
 	}
@@ -19,9 +27,9 @@ public abstract class AbstractSqlLogParser<KEY> {
 	 */
 	protected LineType parseLine(String line) {
 		LineType result;
-		Pair<KEY, Param> kv = matchLogLine(line);
-		if (kv != null) {
-			binds.put(kv.getKey(), kv.getValue());
+		List<Pair<KEY, Param>> kvs = matchLogLine(line);
+		if (kvs != null && !kvs.isEmpty()) {
+			kvs.forEach(kv -> binds.put(kv.getKey(), kv.getValue()));
 			result = LineType.BIND;
 		} else {
 			result = isValidSQL(line) ? LineType.SQL : LineType.INVALID;
@@ -33,9 +41,11 @@ public abstract class AbstractSqlLogParser<KEY> {
 		return true;
 	}
 
-	protected abstract Pair<KEY, Param> matchLogLine(String line);
+	protected String process(String sql, List<String> logMessages) {
+		return replacementStrategy.process(sql, logMessages, binds);
+	}
 
-	abstract String process(String sql, List<String> logMessages);
+	protected abstract List<Pair<KEY, Param>> matchLogLine(String line);
 
 	public String parseParameterBindings(List<String> lines) {
 		StringBuilder sql = new StringBuilder();
@@ -54,5 +64,31 @@ public abstract class AbstractSqlLogParser<KEY> {
 			}
 		}
 		return sql.toString();
+	}
+
+	public static void main(AbstractSqlLogParser parserImpl) throws IOException {
+		StringBuilder sql = new StringBuilder();
+		Map<Integer, Param> binds = new HashMap<>();
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
+			System.out.println("Paste SQL:");
+			String s;
+			do {
+				s = br.readLine();
+				if (s.toLowerCase().contains("select ") && sql.length() == 0 && binds.isEmpty()) {
+					sql.append(s);
+					continue;
+				}
+
+				parserImpl.parseLine(s);
+
+			} while (s != null && !s.isEmpty());
+		}
+
+		List<String> logMessages = new ArrayList<>();
+		String result = parserImpl.process(sql.toString(), logMessages);
+
+		logMessages.forEach(System.out::println);
+		System.out.println();
+		System.out.println(result);
 	}
 }

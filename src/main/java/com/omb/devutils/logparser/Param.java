@@ -5,7 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-class Param {
+public class Param {
 	// Thu Jan 01 01:00:00 CET 1970
 	private static final DateFormat LOG_DATEFORMAT_LONG = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
 	// 2020-09-06 00:00:00.0

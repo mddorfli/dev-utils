@@ -1,6 +1,6 @@
 package com.omb.devutils.logparser;
 
-enum ParamType {
+public enum ParamType {
 	VARCHAR,
 	BOOLEAN,
 	TIMESTAMP,
