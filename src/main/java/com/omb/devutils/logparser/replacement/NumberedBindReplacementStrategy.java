@@ -1,6 +1,7 @@
 package com.omb.devutils.logparser.replacement;
 
 import com.omb.devutils.logparser.Param;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -16,23 +17,26 @@ public class NumberedBindReplacementStrategy implements BindReplacementStrategy<
     @Override
     public String process(String sql, List<String> logMessages, Map<Integer, Param> binds) {
         StringBuilder result = new StringBuilder(sql);
-        Param param = null;
         int bindNr = 1, idx = 0;
         while (true) {
-            param = binds.get(bindNr);
+            Param param = binds.get(bindNr);
             idx = result.indexOf(String.valueOf(bindChar), idx + 1);
 
             if (param == null || idx == -1) {
                 break;
             }
 
+            short bindLen = 1;
+            for (int bindIdx = idx + 1; Character.isDigit(result.charAt(bindIdx)); bindIdx++) {
+                bindLen++;
+            }
+
             String replacement = "/*" + bindChar + bindNr + "*/" + param.getQuerySql();
             if (logMessages != null) {
                 logMessages.add(String.format("replacing bind %d with %s.\n", bindNr, replacement));
             }
-            int bindCharCount = (int) Math.log10(bindNr) + 2;
-            result.replace(idx, idx + bindCharCount, replacement);
-            idx += replacement.length();
+            result.replace(idx, idx + bindLen, replacement);
+            idx += replacement.length() - bindLen;
             bindNr++;
         }
         return result.toString();

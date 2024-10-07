@@ -10,8 +10,8 @@ public class Param {
 	private static final DateFormat LOG_DATEFORMAT_LONG = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
 	// 2020-09-06 00:00:00.0
 	private static final DateFormat LOG_DATEFORMAT_SHORT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
-	// 1970-01-01 00:00
-	private static final DateFormat PSQL_DATEFORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+	// 1970-01-01 00:00:00
+	private static final DateFormat PSQL_DATEFORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	private ParamType type;
 	private String value;

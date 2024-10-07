@@ -3,7 +3,6 @@ package com.omb.devutils.logparser;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,7 +12,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 public class ScoutSqlParser extends AbstractSqlLogParser<String> {
 	// IN :preferredLanguageUid => ? [BIGINT 11001]
-	private static Pattern BIND_PATTERN = Pattern.compile("^IN  (?<bind>:\\w+) => \\? \\[(?<type>\\w+) (?<value>-?\\w+)\\]$");
+	private static final Pattern BIND_PATTERN = Pattern.compile("^IN  (?<bind>:\\w+) => \\? \\[(?<type>\\w+) (?<value>-?\\w+)\\]$");
 
 	public ScoutSqlParser() {
 		super(new NamedBindReplacementStrategy());

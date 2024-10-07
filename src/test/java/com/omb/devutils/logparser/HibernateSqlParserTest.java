@@ -55,7 +55,7 @@ class HibernateSqlParserTest {
 		assertEquals(1, bind.size());
 		assertEquals(7, bind.get(0).getKey().intValue());
 		assertEquals(ParamType.TIMESTAMP, bind.get(0).getValue().getType());
-		assertEquals("TIMESTAMP '1970-01-01 01:00'", bind.get(0).getRight().getQuerySql());
+		assertEquals("TIMESTAMP '1970-01-01 01:00:00'", bind.get(0).getRight().getQuerySql());
 	}
 
 	@Test
@@ -65,7 +65,7 @@ class HibernateSqlParserTest {
 		assertEquals(1, bind.size());
 		assertEquals(8, bind.get(0).getKey().intValue());
 		assertEquals(ParamType.TIMESTAMP, bind.get(0).getValue().getType());
-		assertEquals("TIMESTAMP '2020-07-26 17:50'", bind.get(0).getRight().getQuerySql());
+		assertEquals("TIMESTAMP '2020-07-26 17:50:13'", bind.get(0).getRight().getQuerySql());
 	}
 
 	@Test
@@ -85,6 +85,17 @@ class HibernateSqlParserTest {
 		assertEquals(1, bind.size());
 		assertEquals(9, bind.get(0).getKey().intValue());
 		assertEquals(ParamType.TIMESTAMP, bind.get(0).getValue().getType());
-		assertEquals("TIMESTAMP '2020-09-06 00:00'", bind.get(0).getRight().getQuerySql());
+		assertEquals("TIMESTAMP '2020-09-06 00:00:00'", bind.get(0).getRight().getQuerySql());
+	}
+
+
+	@Test
+	void matchLogLineTest_BIGINTParam_95715() {
+		List<Pair<Integer, Param>> bind = parser.matchLogLine(
+				"15:09:51.313 [583] TRACE o.h.t.d.s.BasicBinder - binding parameter [2] as [BIGINT] - [95715]");
+		assertEquals(1, bind.size());
+		assertEquals(2, bind.get(0).getKey().intValue());
+		assertEquals(ParamType.BIGINT, bind.get(0).getValue().getType());
+		assertEquals("95715", bind.get(0).getRight().getQuerySql());
 	}
 }

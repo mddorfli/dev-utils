@@ -43,7 +43,7 @@ public class PostgresSqlParser extends AbstractSqlLogParser<Integer> {
                 }
                 Matcher matcher = BIND_PATTERN.matcher(token);
                 if (matcher.matches()) {
-                    Integer bind = Integer.valueOf(matcher.group("bind"));
+                    String bind = matcher.group("bind");
                     String value = matcher.group("value");
                     ParamType type = null;
 
@@ -63,9 +63,7 @@ public class PostgresSqlParser extends AbstractSqlLogParser<Integer> {
                         }
                     }
 
-                    if (type != null) {
-                        result.add(Pair.of(bind, new Param(type, value)));
-                    }
+                    result.add(Pair.of(Integer.valueOf(bind), new Param(type, value)));
                 }
             }
         }
